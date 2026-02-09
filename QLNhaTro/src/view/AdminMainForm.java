@@ -1,5 +1,9 @@
 package view;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import util.DBConnection;
+
 import util.Session;
 
 import javax.swing.*;
@@ -24,11 +28,16 @@ public class AdminMainForm extends JFrame {
 		setLayout(new BorderLayout());
 
 		add(createHeader(), BorderLayout.NORTH);
-		add(createMenu(), BorderLayout.WEST);
 
+		// ✅ KHỞI TẠO contentPanel Ở ĐÂY
 		contentPanel = new JPanel(new BorderLayout());
 		contentPanel.setBackground(new Color(245, 247, 250));
 		add(contentPanel, BorderLayout.CENTER);
+
+		add(createMenu(), BorderLayout.WEST);
+
+		// ✅ LOAD DASHBOARD SAU KHI MỌI THỨ XONG
+		showPanel(new DashboardPanel());
 	}
 
 	// ===== HEADER =====
@@ -52,23 +61,16 @@ public class AdminMainForm extends JFrame {
 
 	// ===== MENU TRÁI =====
 	private JPanel createMenu() {
-		contentPanel = new JPanel(new BorderLayout());
-		contentPanel.setBackground(new Color(245, 247, 250));
-		add(contentPanel, BorderLayout.CENTER);
-
-		// LOAD DASHBOARD MẶC ĐỊNH
-		showPanel(new DashboardPanel());
 
 		JPanel menu = new JPanel(new GridLayout(6, 1, 0, 5));
 		menu.setPreferredSize(new Dimension(200, 0));
 		menu.setBackground(new Color(33, 42, 57));
+
 		menu.add(menuButton("📊 Dashboard", () -> showPanel(new DashboardPanel())));
 		menu.add(menuButton("👤 Khách thuê", () -> showPanel(new KhachThueForm())));
 		menu.add(menuButton("🏘 Phòng trọ", () -> showPanel(new PhongTroForm())));
-
 		menu.add(menuButton("📋 Duyệt đặt phòng", () -> showPanel(new DuyetDatPhongForm())));
 		menu.add(menuButton("🛠 Duyệt dịch vụ", () -> showPanel(new DuyetYeuCauDichVuForm())));
-
 		menu.add(menuButton("🧾 Hóa đơn", () -> showPanel(new HoaDonForm())));
 		menu.add(menuButton("🚪 Đăng xuất", this::logout));
 
@@ -111,4 +113,16 @@ public class AdminMainForm extends JFrame {
 		dispose();
 		new AuthForm().setVisible(true);
 	}
+
+	private void taoHoaDonHangThang() {
+		try (Connection conn = DBConnection.getConnection();
+				CallableStatement cs = conn.prepareCall("{call sp_TaoHoaDonHangThang}")) {
+
+			cs.execute();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

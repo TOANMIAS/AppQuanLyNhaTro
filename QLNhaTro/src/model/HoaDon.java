@@ -4,43 +4,20 @@ import java.util.Date;
 
 public class HoaDon {
 	private int maHoaDon;
-	private String maPhong;
 	private Date ngayLap;
-	private double tienPhong;
-	private double tienDichVu;
+	private String maPhong;
+	private boolean trangThaiThanhToan;
+	private Date ngayThanhToan;
+
+	// DÙNG ĐỂ HIỂN THỊ (KHÔNG LƯU DB)
 	private double tongTien;
-	private int trangThai; // 0: chưa thanh toán | 1: đã thanh toán
 
-	// ===== Constructor =====
-	public HoaDon() {
-	}
-
-	public HoaDon(int maHoaDon, String maPhong, Date ngayLap, double tienPhong, double tienDichVu, double tongTien,
-			int trangThai) {
-		this.maHoaDon = maHoaDon;
-		this.maPhong = maPhong;
-		this.ngayLap = ngayLap;
-		this.tienPhong = tienPhong;
-		this.tienDichVu = tienDichVu;
-		this.tongTien = tongTien;
-		this.trangThai = trangThai;
-	}
-
-	// ===== Getter & Setter =====
 	public int getMaHoaDon() {
 		return maHoaDon;
 	}
 
 	public void setMaHoaDon(int maHoaDon) {
 		this.maHoaDon = maHoaDon;
-	}
-
-	public String getMaPhong() {
-		return maPhong;
-	}
-
-	public void setMaPhong(String maPhong) {
-		this.maPhong = maPhong;
 	}
 
 	public Date getNgayLap() {
@@ -51,20 +28,28 @@ public class HoaDon {
 		this.ngayLap = ngayLap;
 	}
 
-	public double getTienPhong() {
-		return tienPhong;
+	public String getMaPhong() {
+		return maPhong;
 	}
 
-	public void setTienPhong(double tienPhong) {
-		this.tienPhong = tienPhong;
+	public void setMaPhong(String maPhong) {
+		this.maPhong = maPhong;
 	}
 
-	public double getTienDichVu() {
-		return tienDichVu;
+	public boolean isTrangThaiThanhToan() {
+		return trangThaiThanhToan;
 	}
 
-	public void setTienDichVu(double tienDichVu) {
-		this.tienDichVu = tienDichVu;
+	public void setTrangThaiThanhToan(boolean trangThaiThanhToan) {
+		this.trangThaiThanhToan = trangThaiThanhToan;
+	}
+
+	public Date getNgayThanhToan() {
+		return ngayThanhToan;
+	}
+
+	public void setNgayThanhToan(Date ngayThanhToan) {
+		this.ngayThanhToan = ngayThanhToan;
 	}
 
 	public double getTongTien() {
@@ -73,13 +58,5 @@ public class HoaDon {
 
 	public void setTongTien(double tongTien) {
 		this.tongTien = tongTien;
-	}
-
-	public int getTrangThai() {
-		return trangThai;
-	}
-
-	public void setTrangThai(int trangThai) {
-		this.trangThai = trangThai;
 	}
 }

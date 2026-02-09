@@ -39,6 +39,7 @@ public class UserMainForm extends JFrame {
 
 		JMenu mUser = new JMenu("Chức năng");
 		JMenuItem miDashboard = new JMenuItem("Trang chủ");
+		JMenuItem miDienNuoc = new JMenuItem("Nhập điện nước");
 		JMenuItem miDatPhong = new JMenuItem("Đặt phòng");
 		JMenuItem miHoaDon = new JMenuItem("Hóa đơn & Thanh toán");
 		JMenuItem miDoiMK = new JMenuItem("Đổi mật khẩu");
@@ -46,6 +47,7 @@ public class UserMainForm extends JFrame {
 
 		mUser.add(miDashboard);
 		mUser.add(miDatPhong);
+		mUser.add(miDienNuoc);
 		mUser.add(miHoaDon);
 		mUser.add(miDichVu);
 		mUser.addSeparator();
@@ -58,9 +60,10 @@ public class UserMainForm extends JFrame {
 
 		bar.add(mUser);
 		bar.add(mHT);
-		setJMenuBar(bar); 
+		setJMenuBar(bar);
 // ===== SỰ KIỆN MENU =====
 		miDashboard.addActionListener(e -> openInternal("Trang chủ", new DashboardPanel(this)));
+		miDienNuoc.addActionListener(e -> openInternal("Nhập điện nước", new DienNuocForm()));
 
 		miDatPhong.addActionListener(e -> openInternal("Đặt phòng", new DatPhongForm()));
 

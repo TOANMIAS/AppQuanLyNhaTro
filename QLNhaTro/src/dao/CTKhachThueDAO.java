@@ -1,11 +1,9 @@
 package dao;
-
-import util.DBConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Date;
+
+import util.DBConnection;
 
 public class CTKhachThueDAO {
 
@@ -28,6 +26,21 @@ public class CTKhachThueDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String getMaPhongDangThue(int maKhach) {
+		String sql = "SELECT TOP 1 MaPhong FROM CT_KHACH_THUE WHERE MaKhach = ?";
+		try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+
+			ps.setInt(1, maKhach);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getString("MaPhong");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static String getMaPhongByUser(int maKhach) {

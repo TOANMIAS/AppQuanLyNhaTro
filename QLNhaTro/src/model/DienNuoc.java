@@ -8,42 +8,40 @@ public class DienNuoc {
 	private int soDien;
 	private int soNuoc;
 
-	// ===== GET =====
 	public String getMaPhong() {
 		return maPhong;
+	}
+
+	public void setMaPhong(String maPhong) {
+		this.maPhong = maPhong;
 	}
 
 	public int getThang() {
 		return thang;
 	}
 
-	public int getNam() {
-		return nam;
-	}
-
-	public int getSoDien() {
-		return soDien;
-	}
-
-	public int getSoNuoc() {
-		return soNuoc;
-	}
-
-	// ===== SET =====
-	public void setMaPhong(String maPhong) {
-		this.maPhong = maPhong;
-	}
-
 	public void setThang(int thang) {
 		this.thang = thang;
+	}
+
+	public int getNam() {
+		return nam;
 	}
 
 	public void setNam(int nam) {
 		this.nam = nam;
 	}
 
+	public int getSoDien() {
+		return soDien;
+	}
+
 	public void setSoDien(int soDien) {
 		this.soDien = soDien;
+	}
+
+	public int getSoNuoc() {
+		return soNuoc;
 	}
 
 	public void setSoNuoc(int soNuoc) {

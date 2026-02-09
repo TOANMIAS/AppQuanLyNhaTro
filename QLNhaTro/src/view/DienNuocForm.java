@@ -1,24 +1,16 @@
 package view;
 
-import java.awt.GridLayout;
-import java.time.LocalDate;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
+import javax.swing.*;
+import java.awt.*;
 import dao.DienNuocDAO;
-import dao.PhongTroDAO;
+import dao.CTKhachThueDAO;
 import model.DienNuoc;
-import model.PhongTro;
 import util.Session;
 
 public class DienNuocForm extends JPanel {
 
-	JTextField txtDien, txtNuoc;
-	JButton btnGui;
+	private JTextField txtThang, txtNam, txtSoDien, txtSoNuoc;
+	private JButton btnLuu;
 
 	public DienNuocForm() {
 
@@ -27,46 +19,52 @@ public class DienNuocForm extends JPanel {
 			return;
 		}
 
-		setLayout(new GridLayout(3, 2, 10, 10));
+		setLayout(new GridLayout(5, 2, 10, 10));
+		setBorder(BorderFactory.createTitledBorder("Nhập điện nước tháng"));
+
+		add(new JLabel("Tháng:"));
+		txtThang = new JTextField();
+		add(txtThang);
+
+		add(new JLabel("Năm:"));
+		txtNam = new JTextField();
+		add(txtNam);
 
 		add(new JLabel("Số điện tiêu thụ:"));
-		txtDien = new JTextField();
-		add(txtDien);
+		txtSoDien = new JTextField();
+		add(txtSoDien);
 
 		add(new JLabel("Số nước tiêu thụ:"));
-		txtNuoc = new JTextField();
-		add(txtNuoc);
+		txtSoNuoc = new JTextField();
+		add(txtSoNuoc);
 
-		btnGui = new JButton("Gửi chỉ số");
+		btnLuu = new JButton("Lưu");
 		add(new JLabel());
-		add(btnGui);
+		add(btnLuu);
 
-		btnGui.addActionListener(e -> gui());
+		btnLuu.addActionListener(e -> luu());
 	}
 
-	private void gui() {
-
+	private void luu() {
 		try {
-			int dien = Integer.parseInt(txtDien.getText());
-			int nuoc = Integer.parseInt(txtNuoc.getText());
-
-			PhongTro phong = PhongTroDAO.getPhongDangThue(Session.user.getMaKhach());
-			if (phong == null) {
+			// 🔴 SỬA ĐÚNG: LẤY MÃ PHÒNG TỪ CT_KHACH_THUE
+			String maPhong = CTKhachThueDAO.getMaPhongDangThue(Session.user.getMaKhach());
+			if (maPhong == null) {
 				JOptionPane.showMessageDialog(this, "Bạn chưa được gán phòng!");
 				return;
 			}
 
 			DienNuoc dn = new DienNuoc();
-			dn.setMaPhong(phong.getMaPhong());
-			dn.setThang(LocalDate.now().getMonthValue());
-			dn.setNam(LocalDate.now().getYear());
-			dn.setSoDien(dien);
-			dn.setSoNuoc(nuoc);
+			dn.setMaPhong(maPhong);
+			dn.setThang(Integer.parseInt(txtThang.getText()));
+			dn.setNam(Integer.parseInt(txtNam.getText()));
+			dn.setSoDien(Integer.parseInt(txtSoDien.getText()));
+			dn.setSoNuoc(Integer.parseInt(txtSoNuoc.getText()));
 
-			DienNuocDAO.nhapChiSo(dn);
+			DienNuocDAO.luuDienNuoc(dn);
+			JOptionPane.showMessageDialog(this, "Đã lưu điện nước!");
 
-			JOptionPane.showMessageDialog(this, "Đã ghi nhận chỉ số!");
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, "Dữ liệu không hợp lệ!");
 		}
 	}

@@ -10,69 +10,104 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import dao.CTKhachThueDAO;
 import dao.HoaDonDAO;
 import model.HoaDon;
 import util.Session;
 
 public class HoaDonForm extends JPanel {
 
-	JTable table;
-	DefaultTableModel model;
-	JButton btnThanhToan;
-
-	HoaDonDAO dao = new HoaDonDAO();
+	private JTable table;
+	private DefaultTableModel model;
+	private JButton btnThanhToan, btnReload;
 
 	public HoaDonForm() {
+
+		if (!Session.isLogin()) {
+			JOptionPane.showMessageDialog(this, "Vui lòng đăng nhập!");
+			return;
+		}
+
 		setLayout(new BorderLayout(10, 10));
 
-		JLabel title = new JLabel("HÓA ĐƠN CỦA TÔI");
+		JLabel title = new JLabel("HÓA ĐƠN CỦA TÔI", SwingConstants.CENTER);
 		title.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		add(title, BorderLayout.NORTH);
 
-		model = new DefaultTableModel(new String[] { "Mã HĐ", "Ngày lập", "Phòng", "Tổng tiền", "Trạng thái" }, 0);
+		model = new DefaultTableModel(new String[] { "Mã HĐ", "Phòng", "Ngày lập", "Tổng tiền", "Trạng thái" }, 0) {
+			@Override
+			public boolean isCellEditable(int r, int c) {
+				return false;
+			}
+		};
+
 		table = new JTable(model);
-		table.setRowHeight(25);
+		table.setRowHeight(26);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 
 		btnThanhToan = new JButton("Thanh toán");
+		btnReload = new JButton("Tải lại");
+
 		JPanel bottom = new JPanel();
 		bottom.add(btnThanhToan);
+		bottom.add(btnReload);
 		add(bottom, BorderLayout.SOUTH);
 
 		loadData();
-
-		btnThanhToan.addActionListener(e -> thanhToan());
+		bindEvent();
+		
 	}
+	
 
+	/* ================= LOAD DATA ================= */
 	private void loadData() {
 		model.setRowCount(0);
 
-		List<HoaDon> list = dao.getHoaDonByMaKhach(Session.user.getMaKhach());
-		for (HoaDon h : list) {
-			model.addRow(new Object[] { h.getMaHoaDon(), h.getNgayLap(), h.getMaPhong(), h.getTongTien(),
-					h.getTrangThai() == 1 ? "Đã thanh toán" : "Chưa thanh toán" });
+		// 🔴 LẤY PHÒNG KHÁCH ĐANG THUÊ
+		String maPhong = CTKhachThueDAO.getMaPhongDangThue(Session.user.getMaKhach());
+		if (maPhong == null)
+			return;
+
+		List<HoaDon> list = HoaDonDAO.getHoaDonByPhong(maPhong);
+
+		for (HoaDon hd : list) {
+			model.addRow(new Object[] { hd.getMaHoaDon(), hd.getMaPhong(), hd.getNgayLap(),
+					String.format("%,.0f", hd.getTongTien()),
+					hd.isTrangThaiThanhToan() ? "Đã thanh toán" : "Chưa thanh toán" });
 		}
 	}
 
-	private void thanhToan() {
-		int r = table.getSelectedRow();
-		if (r < 0)
-			return;
+	/* ================= EVENT ================= */
+	private void bindEvent() {
 
-		if (model.getValueAt(r, 4).toString().equals("Đã thanh toán")) {
-			JOptionPane.showMessageDialog(this, "Hóa đơn đã được thanh toán!");
-			return;
-		}
+		btnReload.addActionListener(e -> loadData());
 
-		int maHD = (int) model.getValueAt(r, 0);
+		btnThanhToan.addActionListener(e -> {
+			int r = table.getSelectedRow();
+			if (r < 0) {
+				JOptionPane.showMessageDialog(this, "Vui lòng chọn hóa đơn!");
+				return;
+			}
 
-		if (JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán hóa đơn?", "Thanh toán",
-				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			String trangThai = model.getValueAt(r, 4).toString();
+			if (trangThai.equals("Đã thanh toán")) {
+				JOptionPane.showMessageDialog(this, "Hóa đơn đã thanh toán!");
+				return;
+			}
 
-			dao.thanhToanHoaDon(maHD);
-			loadData();
-		}
+			int maHoaDon = (int) model.getValueAt(r, 0);
+
+			if (JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán hóa đơn " + maHoaDon + "?", "Xác nhận",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+
+				HoaDonDAO.thanhToan(maHoaDon);
+				JOptionPane.showMessageDialog(this, "Thanh toán thành công!");
+				loadData();
+			}
+			
+		});
 	}
 }

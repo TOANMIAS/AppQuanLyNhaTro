@@ -1,21 +1,26 @@
 package view;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.util.List;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-import dao.*;
-import model.*;
+import dao.DichVuDAO;
+import dao.CTKhachThueDAO;
+import dao.YeuCauDichVuDAO;
+import model.DichVu;
+import model.YeuCauDichVu;
 import util.Session;
 
 public class DichVuForm extends JPanel {
 
-	JTable table;
-	DefaultTableModel model;
-	JComboBox<DichVu> cbDichVu;
-	JTextField txtSoLuong;
-	JButton btnGui;
+	private JTable table;
+	private DefaultTableModel model;
+	private JComboBox<DichVu> cbDichVu;
+	private JTextField txtSoLuong;
+	private JButton btnGui;
 
 	public DichVuForm() {
 
@@ -31,28 +36,26 @@ public class DichVuForm extends JPanel {
 		add(title, BorderLayout.NORTH);
 
 		model = new DefaultTableModel(new String[] { "Mã YC", "Dịch vụ", "Số lượng", "Trạng thái" }, 0) {
+			@Override
 			public boolean isCellEditable(int r, int c) {
 				return false;
 			}
 		};
 
 		table = new JTable(model);
-		table.setRowHeight(25);
 		add(new JScrollPane(table), BorderLayout.CENTER);
-
-		JPanel form = new JPanel(new FlowLayout());
 
 		cbDichVu = new JComboBox<>();
 		txtSoLuong = new JTextField(5);
 		btnGui = new JButton("Gửi yêu cầu");
 
-		form.add(new JLabel("Dịch vụ:"));
-		form.add(cbDichVu);
-		form.add(new JLabel("Số lượng:"));
-		form.add(txtSoLuong);
-		form.add(btnGui);
-
-		add(form, BorderLayout.SOUTH);
+		JPanel bottom = new JPanel();
+		bottom.add(new JLabel("Dịch vụ:"));
+		bottom.add(cbDichVu);
+		bottom.add(new JLabel("Số lượng:"));
+		bottom.add(txtSoLuong);
+		bottom.add(btnGui);
+		add(bottom, BorderLayout.SOUTH);
 
 		loadDichVu();
 		loadData();
@@ -61,7 +64,7 @@ public class DichVuForm extends JPanel {
 
 	private void loadDichVu() {
 		cbDichVu.removeAllItems();
-		for (DichVu dv : DichVuDAO.getAllChoUser()) {
+		for (DichVu dv : DichVuDAO.getDichVuChoKhach()) {
 			cbDichVu.addItem(dv);
 		}
 	}
@@ -69,14 +72,18 @@ public class DichVuForm extends JPanel {
 	private void loadData() {
 		model.setRowCount(0);
 
-		PhongTro phong = PhongTroDAO.getPhongDangThue(Session.user.getMaKhach());
-		if (phong == null)
+		String maPhong = CTKhachThueDAO.getMaPhongDangThue(Session.user.getMaKhach());
+		if (maPhong == null)
 			return;
 
-		List<YeuCauDichVu> list = YeuCauDichVuDAO.getByPhong(phong.getMaPhong());
+		List<YeuCauDichVu> list = YeuCauDichVuDAO.getChoDuyet();
+		// 👉 KHÁCH chỉ xem yêu cầu của mình (đơn giản)
 
 		for (YeuCauDichVu yc : list) {
-			model.addRow(new Object[] { yc.getMaYC(), DichVuDAO.getTenByMa(yc.getMaDichVu()), yc.getSoLuong(),
+			if (!maPhong.equals(yc.getMaPhong()))
+				continue;
+
+			model.addRow(new Object[] { yc.getMaYeuCau(), yc.getTenDichVu(), yc.getSoLuong(),
 					yc.getTrangThai() == 0 ? "Chờ duyệt" : yc.getTrangThai() == 1 ? "Đã duyệt" : "Từ chối" });
 		}
 	}
@@ -88,21 +95,24 @@ public class DichVuForm extends JPanel {
 				if (soLuong <= 0)
 					throw new Exception();
 
-				PhongTro phong = PhongTroDAO.getPhongDangThue(Session.user.getMaKhach());
-				if (phong == null) {
-					JOptionPane.showMessageDialog(this, "Bạn chưa thuê phòng!");
+				String maPhong = CTKhachThueDAO.getMaPhongDangThue(Session.user.getMaKhach());
+				if (maPhong == null) {
+					JOptionPane.showMessageDialog(this, "Bạn chưa được gán phòng!");
 					return;
 				}
 
 				DichVu dv = (DichVu) cbDichVu.getSelectedItem();
 
 				YeuCauDichVu yc = new YeuCauDichVu();
-				yc.setMaPhong(phong.getMaPhong());
+				yc.setMaKhach(Session.user.getMaKhach());
+				yc.setMaPhong(maPhong);
 				yc.setMaDichVu(dv.getMaDichVu());
+				yc.setTenDichVu(dv.getDichVu());
+				yc.setGiaTien(dv.getGiaDichVu());
 				yc.setSoLuong(soLuong);
+				yc.setTrangThai(0);
 
 				YeuCauDichVuDAO.guiYeuCau(yc);
-
 				JOptionPane.showMessageDialog(this, "Đã gửi yêu cầu!");
 				txtSoLuong.setText("");
 				loadData();

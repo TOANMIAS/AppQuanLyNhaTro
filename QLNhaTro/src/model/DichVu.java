@@ -2,19 +2,9 @@ package model;
 
 public class DichVu {
 	private String maDichVu;
-	private String tenDichVu;
+	private String dichVu;
 	private double giaDichVu;
-
-	// ✅ constructor mặc định
-	public DichVu() {
-	}
-
-	// ✅ constructor đầy đủ (FIX LỖI)
-	public DichVu(String maDichVu, String tenDichVu, double giaDichVu) {
-		this.maDichVu = maDichVu;
-		this.tenDichVu = tenDichVu;
-		this.giaDichVu = giaDichVu;
-	}
+	private boolean laCoDinh;
 
 	public String getMaDichVu() {
 		return maDichVu;
@@ -24,12 +14,12 @@ public class DichVu {
 		this.maDichVu = maDichVu;
 	}
 
-	public String getTenDichVu() {
-		return tenDichVu;
+	public String getDichVu() {
+		return dichVu;
 	}
 
-	public void setTenDichVu(String tenDichVu) {
-		this.tenDichVu = tenDichVu;
+	public void setDichVu(String dichVu) {
+		this.dichVu = dichVu;
 	}
 
 	public double getGiaDichVu() {
@@ -40,8 +30,16 @@ public class DichVu {
 		this.giaDichVu = giaDichVu;
 	}
 
+	public boolean isLaCoDinh() {
+		return laCoDinh;
+	}
+
+	public void setLaCoDinh(boolean laCoDinh) {
+		this.laCoDinh = laCoDinh;
+	}
+
 	@Override
 	public String toString() {
-		return tenDichVu + " (" + giaDichVu + "đ)";
+		return dichVu + " (" + String.format("%,.0f", giaDichVu) + ")";
 	}
 }
